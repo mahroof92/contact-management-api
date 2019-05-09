@@ -1,0 +1,16 @@
+{
+  "name": "contact-management-api",
+  "version": "1.0.0",
+  "description": "Backend API Service for Contacts App",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "author": "Mohammed Mahroof",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mongoose": "^5.5.6",
+    "mongoose-unique-validator": "^2.0.3"
+  }
+}
