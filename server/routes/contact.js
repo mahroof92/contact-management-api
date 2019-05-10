@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 
 const contact = require('../controllers/contact.js');
@@ -17,6 +18,10 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   await contact.deleteContact(req, res);
+});
+
+router.get('/search/:key', async (req, res) => {
+  await contact.searchContact(req, res);
 });
 
 module.exports = router;
