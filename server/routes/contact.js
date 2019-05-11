@@ -1,8 +1,7 @@
 const express = require('express');
+const contact = require('../controllers/contact.js');
 
 const router = express.Router();
-
-const contact = require('../controllers/contact.js');
 
 router.post('/', async (req, res) => {
   await contact.create(req, res);
