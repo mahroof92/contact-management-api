@@ -18,23 +18,23 @@ const create = async (req, res) => {
 /**
  * To find a contact using id
  */
-const get = (req, res) => {
-  Contact.findById(req.params.id, (err, contact) => {
-    if (err) {
-      console.log('Error while finding the contact with ID: ', req.params.id);
-      return res.status(500).send(err);
-    }
+const getById = (req, res) => {
+  try {
+    const contact = Contact.findById(req.params.id);
     if (!contact) {
       return res.status(404).send({ error: 'Invalid Id' });
     }
     return res.send(contact);
-  });
+  } catch (error) {
+    console.log('Error while finding the contact with ID: ', req.params.id);
+    return res.status(500).send(error);
+  }
 };
 
 /**
  * To update a contact using id
  */
-const update = async (req, res) => {
+const updateById = async (req, res) => {
   if (req.body && !req.body._id) {
     console.log('Contact ID not found in request body');
     return res.status(400).send('Contact ID not found in request body');
@@ -61,7 +61,7 @@ const update = async (req, res) => {
 /**
  * To delete a contact using id
  */
-const deleteContact = async (req, res) => {
+const deleteContactById = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
     if (!contact) {
@@ -98,10 +98,24 @@ const searchContact = async (req, res) => {
   }
 };
 
+/**
+ * To get all contacts sorted by name
+ */
+const getAllContacts = async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ name: 1 });
+    return res.send(contacts);
+  } catch (error) {
+    console.log('Error while getting all contacts');
+    return res.status(500).send(error);
+  }
+};
+
 module.exports = {
   create,
-  get,
-  update,
-  deleteContact,
+  getById,
+  updateById,
+  deleteContactById,
   searchContact,
+  getAllContacts,
 };

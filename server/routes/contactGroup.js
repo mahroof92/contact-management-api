@@ -19,4 +19,20 @@ router.delete('/:id', async (req, res) => {
   await contactGroup.deleteById(req, res);
 });
 
+router.post('/:id/contacts', async (req, res) => {
+  await contactGroup.addContactsByGroupId(req, res);
+});
+
+router.get('/:id/contacts', async (req, res) => {
+  await contactGroup.getContactsByGroupId(req, res);
+});
+
+router.get('/:id/contacts/toAdd', async (req, res) => {
+  await contactGroup.getNonExistingContactsInGroup(req, res);
+});
+
+router.delete('/:id/contacts', async (req, res) => {
+  await contactGroup.removeContactsByGroupId(req, res);
+});
+
 module.exports = router;
