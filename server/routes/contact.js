@@ -3,11 +3,13 @@ const contact = require('../controllers/contact.js');
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
+  await contact.validateInput(req, res, next);
+}, async (req, res) => {
   await contact.create(req, res);
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   contact.getById(req, res);
 });
 

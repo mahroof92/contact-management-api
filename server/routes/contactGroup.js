@@ -35,4 +35,8 @@ router.delete('/:id/contacts', async (req, res) => {
   await contactGroup.removeContactsByGroupId(req, res);
 });
 
+router.get('/', async (req, res) => {
+  await contactGroup.getAllGroups(req, res);
+});
+
 module.exports = router;

@@ -26,11 +26,14 @@ const create = async (req, res) => {
 };
 
 /**
- * To find a contact group with id
+ * To find a contact group with all its contacts sorted by name
  */
 const getById = async (req, res) => {
   try {
-    const contactGroup = await ContactGroup.findById(req.params.id);
+    const contactGroup = await ContactGroup.findById(req.params.id).populate({
+      path: 'contacts',
+      options: { sort: { name: 1 } },
+    });
     if (!contactGroup) {
       return res.status(404).send({ error: 'Invalid Contact Group Id' });
     }
@@ -123,6 +126,10 @@ const addContactsByGroupId = async (req, res) => {
     if (newContactList.length > 100) {
       return res.status(422).send({ error: 'Bad request input - Contacts list length exceeds 100' });
     }
+    const contacts = await Contact.find({ _id: { $in: newContactList } });
+    if (contacts.length !== newContactList.length) {
+      return res.status(422).send({ error: 'Bad request input - One or more contact id(s) invalid' });
+    }
     let contactGroup = await ContactGroup.findById(req.params.id);
     if (!contactGroup) {
       console.debug('No data found with the ID: ', req.body._id);
@@ -159,7 +166,7 @@ const getContactsByGroupId = async (req, res) => {
       console.debug('No data found with the ID: ', req.params.id);
       return res.status(404).send({ error: 'Invalid Contact Group Id' });
     }
-    return res.send(contactGroup);
+    return res.send(contactGroup.contacts);
   } catch (error) {
     console.log('Error while adding contacts to contact group with ID: ', req.params.id);
     return res.status(500).send(error);
@@ -233,6 +240,19 @@ const removeContactsByGroupId = async (req, res) => {
   }
 };
 
+/**
+ * To get all contact groups sorted by name
+ */
+const getAllGroups = async (req, res) => {
+  try {
+    const contactGroups = await ContactGroup.find().sort({ name: 1 });
+    return res.send(contactGroups);
+  } catch (error) {
+    console.log('Error while getting all contact groups');
+    return res.status(500).send(error);
+  }
+};
+
 module.exports = {
   create,
   getById,
@@ -242,4 +262,5 @@ module.exports = {
   getContactsByGroupId,
   getNonExistingContactsInGroup,
   removeContactsByGroupId,
+  getAllGroups,
 };
