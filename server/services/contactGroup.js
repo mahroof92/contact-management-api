@@ -1,15 +1,16 @@
+const errorConstant = require('../constants/errorConstant');
 
 const validateCreateInput = async (input) => {
   let error = null;
   if (input.length) {
-    error = 'Bad Input Request.';
+    error = errorConstant.ERRORS.BAD_INPUT_REQUEST;
   } else if (!input.name) {
-    error = 'Bad Input Request - Name is mandatory';
+    error = errorConstant.ERRORS.NAME_MANDATORY;
   } else if (input.contacts) {
-    error = 'Bad Input Request - Contacts cannot be added while creating a group';
+    error = errorConstant.ERRORS.CANNOT_ADD_CONTACT;
   // eslint-disable-next-line no-underscore-dangle
   } else if (input._id) {
-    error = 'Bad Input Request - Invalid key _id';
+    error = errorConstant.ERRORS.INVALID_ID_KEY;
   }
   return error;
 };
