@@ -48,7 +48,7 @@ const getById = async (req, res) => {
 /**
  * To update a contact group name based on its id
  */
-const updateById = async (req, res) => {
+const updateNameById = async (req, res) => {
   if (req.body && !req.body._id) {
     console.log('Contact Group ID not found in request body');
     return res.status(422).send({ error: errorConstant.ERRORS.ID_MANDATORY });
@@ -124,7 +124,7 @@ const addContactsByGroupId = async (req, res) => {
     if (newContactList.length !== req.body.contacts.length) {
       return res.status(422).send({ error: errorConstant.ERRORS.DUPLICATE_CONTACT_LIST });
     }
-    if (newContactList.length > 100) {
+    if (newContactList.length > process.env.MAX_LENGTH) {
       return res.status(422).send({ error: errorConstant.ERRORS.MAX_CONTACT_EXCEEDS });
     }
     const contacts = await Contact.find({ _id: { $in: newContactList } });
@@ -215,7 +215,7 @@ const removeContactsByGroupId = async (req, res) => {
     if (contactListToDelete.length !== req.body.contacts.length) {
       return res.status(422).send({ error: errorConstant.ERRORS.DUPLICATE_CONTACT_LIST });
     }
-    if (contactListToDelete.length > 100) {
+    if (contactListToDelete.length > process.env.MAX_LENGTHprocess.env.MAX_LENGTH) {
       return res.status(422).send({ error: errorConstant.ERRORS.MAX_CONTACT_EXCEEDS });
     }
     let contactGroup = await ContactGroup.findById(req.params.id);
@@ -257,7 +257,7 @@ const getAllGroups = async (req, res) => {
 module.exports = {
   create,
   getById,
-  updateById,
+  updateNameById,
   deleteById,
   addContactsByGroupId,
   getContactsByGroupId,

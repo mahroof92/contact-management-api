@@ -15,7 +15,7 @@ mongoose.connect(mongoDB, {
 });
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
-const port = 3000;
+const port = process.env.PORT || 3000;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => {
   console.log('MongoDB Connected Successfully');
@@ -27,5 +27,7 @@ db.once('open', () => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/contacts', contact);
-app.use('/contactGroups', contactGroup);
+app.use('/api/contacts', contact);
+app.use('/api/contactGroups', contactGroup);
+
+module.exports = app;

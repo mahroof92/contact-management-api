@@ -4,7 +4,8 @@
   "description": "Backend API Service for Contacts App",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "test": "mocha $(find -name \"*.test.js\" -not -path \"./node_modules/*\")"
   },
   "author": "Mohammed Mahroof",
   "license": "ISC",
@@ -12,11 +13,15 @@
     "express": "^4.16.4",
     "mongoose": "^5.5.6",
     "mongoose-unique-validator": "^2.0.3",
-    "body-parser" : "1.18.3"
+    "body-parser": "1.18.3"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.2"
+    "eslint-plugin-import": "^2.17.2",
+    "faker": "^4.1.0",
+    "mocha": "^6.1.4",
+    "supertest": "^4.0.2"
   }
 }
