@@ -187,7 +187,8 @@ const updateById = async (req, res) => {
   if (!req.body.name) {
     return res.status(422).send({ error: errorConstant.ERRORS.NAME_MANDATORY });
   }
-  [await validatePhoneInput(req, res), await validateEmailInput(req, res)];
+  await validatePhoneInput(req, res);
+  await validateEmailInput(req, res);
   try {
     let contact = await Contact.findById(req.body._id);
     if (!contact) {

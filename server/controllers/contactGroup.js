@@ -215,7 +215,7 @@ const removeContactsByGroupId = async (req, res) => {
     if (contactListToDelete.length !== req.body.contacts.length) {
       return res.status(422).send({ error: errorConstant.ERRORS.DUPLICATE_CONTACT_LIST });
     }
-    if (contactListToDelete.length > process.env.MAX_LENGTHprocess.env.MAX_LENGTH) {
+    if (contactListToDelete.length > process.env.MAX_LENGTH) {
       return res.status(422).send({ error: errorConstant.ERRORS.MAX_CONTACT_EXCEEDS });
     }
     let contactGroup = await ContactGroup.findById(req.params.id);

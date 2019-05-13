@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Backend API Service for Contacts App",
   "main": "server/server.js",
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
     "start": "node server/server.js",
     "test": "mocha $(find -name \"*.test.js\" -not -path \"./node_modules/*\")"
