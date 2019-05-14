@@ -4,6 +4,7 @@ const ContactGroup = require('../models/contactGroup');
 const contactGroupService = require('../services/contactGroup');
 const Contact = require('../models/contact');
 const errorConstant = require('../constants/errorConstant');
+const AppError = require('../errors/appError');
 
 /**
  * To create a contact group
@@ -12,17 +13,17 @@ const create = async (req, res) => {
   try {
     const validationError = await contactGroupService.validateCreateInput(req.body);
     if (validationError) {
-      return res.status(422).send({ error: validationError });
+      throw new AppError(validationError);
     }
     let contactGroup = await ContactGroup.findOne({ name: req.body.name });
     if (contactGroup) {
-      return res.status(409).send({ error: errorConstant.ERRORS.GROUP_EXISTS });
+      throw new AppError(errorConstant.ERRORS.GROUP_EXISTS);
     }
-    contactGroup = await ContactGroup.insertMany(req.body);
+    contactGroup = await ContactGroup.create(req.body);
     return res.status(201).send(contactGroup);
   } catch (error) {
     console.log('Error wile creating a contact group', error);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -36,12 +37,12 @@ const getById = async (req, res) => {
       options: { sort: { name: 1 } },
     });
     if (!contactGroup) {
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     return res.send(contactGroup);
   } catch (error) {
     console.log('Error while finding the contact group with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -49,32 +50,29 @@ const getById = async (req, res) => {
  * To update a contact group name based on its id
  */
 const updateNameById = async (req, res) => {
-  if (req.body && !req.body._id) {
-    console.log('Contact Group ID not found in request body');
-    return res.status(422).send({ error: errorConstant.ERRORS.ID_MANDATORY });
-  }
-  if (req.params.id !== req.body._id) {
-    console.log('Request Param ID did not match with the request body ID');
-    return res.status(422).send({ error: errorConstant.ERRORS.REQUEST_ID_MISMATCH });
-  }
-  if (req.body.contacts) {
-    return res.status(422).send({ error: errorConstant.ERRORS.INVALID_KEY_CONTACTS });
-  }
-  if (!req.body.name) {
-    return res.status(422).send({ error: errorConstant.ERRORS.NAME_MANDATORY });
-  }
   try {
+    if (req.body && !req.body._id) {
+      throw new AppError(errorConstant.ERRORS.ID_MANDATORY);
+    }
+    if (req.params.id !== req.body._id) {
+      throw new AppError(errorConstant.ERRORS.REQUEST_ID_MISMATCH);
+    }
+    if (req.body.contacts && req.body.contacts.length) {
+      throw new AppError(errorConstant.ERRORS.INVALID_KEY_CONTACTS);
+    }
+    if (!req.body.name) {
+      throw new AppError(errorConstant.ERRORS.NAME_MANDATORY);
+    }
     let contactGroup = await ContactGroup.findById(req.body._id);
     if (!contactGroup) {
-      console.debug('No data found with the ID: ', req.body._id);
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     const existingContactGroup = await ContactGroup.findOne({
       name: req.body.name,
       _id: { $nin: contactGroup._id },
     });
     if (existingContactGroup) {
-      return res.status(409).send({ error: errorConstant.ERRORS.GROUP_EXISTS });
+      throw new AppError(errorConstant.ERRORS.GROUP_EXISTS);
     }
     contactGroup = await ContactGroup.findByIdAndUpdate(contactGroup._id, {
       name: req.body.name,
@@ -82,7 +80,7 @@ const updateNameById = async (req, res) => {
     return res.send(contactGroup);
   } catch (error) {
     console.log('Error while updating the contact with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -93,14 +91,13 @@ const deleteById = async (req, res) => {
   try {
     const contactGroup = await ContactGroup.findById(req.params.id);
     if (!contactGroup) {
-      console.log('No data found with the ID: ', req.params.id);
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     await ContactGroup.deleteOne({ _id: req.params.id });
     return res.status(204).send();
   } catch (error) {
     console.log('Error while deleting the contact group with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -110,39 +107,36 @@ const deleteById = async (req, res) => {
 const addContactsByGroupId = async (req, res) => {
   try {
     if (req.body && !req.body._id) {
-      console.log('Contact Group ID not found in request body');
-      return res.status(422).send({ error: errorConstant.ERRORS.ID_MANDATORY });
+      throw new AppError(errorConstant.ERRORS.ID_MANDATORY);
     }
     if (req.params.id !== req.body._id) {
-      console.log('Request Param ID did not match with the request body ID');
-      return res.status(422).send({ error: errorConstant.ERRORS.REQUEST_ID_MISMATCH });
+      throw new AppError(errorConstant.ERRORS.REQUEST_ID_MISMATCH);
     }
     if (!req.body.contacts || !req.body.contacts.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.CONTACT_LIST_MANDATORY });
+      throw new AppError(errorConstant.ERRORS.CONTACT_LIST_MANDATORY);
     }
     const newContactList = [...new Set(req.body.contacts)];
     if (newContactList.length !== req.body.contacts.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.DUPLICATE_CONTACT_LIST });
+      throw new AppError(errorConstant.ERRORS.DUPLICATE_CONTACT_LIST);
     }
     if (newContactList.length > process.env.MAX_LENGTH) {
-      return res.status(422).send({ error: errorConstant.ERRORS.MAX_CONTACT_EXCEEDS });
+      throw new AppError(errorConstant.ERRORS.MAX_CONTACT_EXCEEDS);
     }
     const contacts = await Contact.find({ _id: { $in: newContactList } });
     if (contacts.length !== newContactList.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.INVALID_CONTACT_IDS });
+      throw new AppError(errorConstant.ERRORS.INVALID_CONTACT_IDS);
     }
     let contactGroup = await ContactGroup.findById(req.params.id);
     if (!contactGroup) {
-      console.debug('No data found with the ID: ', req.body._id);
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     if (req.body.name && (req.body.name !== contactGroup.name)) {
-      return res.status(422).send({ error: errorConstant.ERRORS.INVALID_VALUE_NAME });
+      throw new AppError(errorConstant.ERRORS.INVALID_VALUE_NAME);
     }
     const existingContactList = contactGroup.contacts.map(c => c._id.toString());
     const contactList = [...new Set([...existingContactList, ...newContactList])];
     if (existingContactList.length === contactList.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.CONTACT_ID_EXISTS });
+      throw new AppError(errorConstant.ERRORS.CONTACT_ID_EXISTS);
     }
     contactGroup = await ContactGroup.findByIdAndUpdate(contactGroup._id, {
       contacts: contactList,
@@ -150,7 +144,7 @@ const addContactsByGroupId = async (req, res) => {
     return res.send(contactGroup);
   } catch (error) {
     console.log('Error while adding contacts to contact group with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -164,13 +158,12 @@ const getContactsByGroupId = async (req, res) => {
       options: { sort: { name: 1 } },
     });
     if (!contactGroup) {
-      console.debug('No data found with the ID: ', req.params.id);
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     return res.send(contactGroup.contacts);
   } catch (error) {
     console.log('Error while adding contacts to contact group with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -182,7 +175,7 @@ const getNonExistingContactsInGroup = async (req, res) => {
     const contactGroup = await ContactGroup.findById(req.params.id);
     if (!contactGroup) {
       console.debug('No data found with the ID: ', req.params.id);
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     const existingContactList = contactGroup.contacts.map(c => c._id.toString());
     const contacts = await Contact.find({
@@ -191,7 +184,7 @@ const getNonExistingContactsInGroup = async (req, res) => {
     return res.send(contacts);
   } catch (error) {
     console.log('Error while adding contacts to contact group with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -201,35 +194,32 @@ const getNonExistingContactsInGroup = async (req, res) => {
 const removeContactsByGroupId = async (req, res) => {
   try {
     if (req.body && !req.body._id) {
-      console.log('Contact Group ID not found in request body');
-      return res.status(422).send({ error: errorConstant.ERRORS.ID_MANDATORY });
+      throw new AppError(errorConstant.ERRORS.ID_MANDATORY);
     }
     if (req.params.id !== req.body._id) {
-      console.log('Request Param ID did not match with the request body ID');
-      return res.status(422).send({ error: errorConstant.ERRORS.REQUEST_ID_MISMATCH });
+      throw new AppError(errorConstant.ERRORS.REQUEST_ID_MISMATCH);
     }
     if (!req.body.contacts || !req.body.contacts.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.CONTACT_LIST_MANDATORY });
+      throw new AppError(errorConstant.ERRORS.CONTACT_LIST_MANDATORY);
     }
     const contactListToDelete = [...new Set(req.body.contacts)];
     if (contactListToDelete.length !== req.body.contacts.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.DUPLICATE_CONTACT_LIST });
+      throw new AppError(errorConstant.ERRORS.DUPLICATE_CONTACT_LIST);
     }
     if (contactListToDelete.length > process.env.MAX_LENGTH) {
-      return res.status(422).send({ error: errorConstant.ERRORS.MAX_CONTACT_EXCEEDS });
+      throw new AppError(errorConstant.ERRORS.MAX_CONTACT_EXCEEDS);
     }
     let contactGroup = await ContactGroup.findById(req.params.id);
     if (!contactGroup) {
-      console.debug('No data found with the ID: ', req.body._id);
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_GROUP_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_GROUP_ID);
     }
     if (req.body.name && (req.body.name !== contactGroup.name)) {
-      return res.status(422).send({ error: errorConstant.ERRORS.INVALID_VALUE_NAME });
+      throw new AppError(errorConstant.ERRORS.INVALID_VALUE_NAME);
     }
     const existingContactList = contactGroup.contacts.map(c => c._id.toString());
     const contactList = existingContactList.filter(c => !contactListToDelete.includes(c));
     if (existingContactList.length === contactList.length) {
-      return res.status(422).send({ error: errorConstant.ERRORS.INVALID_CONTACT_IDS });
+      throw new AppError(errorConstant.ERRORS.INVALID_CONTACT_IDS);
     }
     contactGroup = await ContactGroup.findByIdAndUpdate(contactGroup._id, {
       contacts: contactList,
@@ -237,7 +227,7 @@ const removeContactsByGroupId = async (req, res) => {
     return res.send(contactGroup);
   } catch (error) {
     console.log('Error while adding contacts to contact group with ID: ', req.params.id);
-    return res.status(500).send(error);
+    return res.status(error.status || 500).send(error);
   }
 };
 

@@ -28,7 +28,7 @@ router.get('/:id', (req, res) => {
  *    "name": "sample name"
  * }
  */
-router.put('/:id', async (req, res) => {
+router.patch('/:id', async (req, res) => {
   await contactGroup.updateNameById(req, res);
 });
 

@@ -7,7 +7,10 @@ const contactGroup = require('./routes/contactGroup');
 
 const app = express();
 
-const devDbUrl = 'mongodb://localhost:27017/contacts';
+let devDbUrl = 'mongodb://localhost:27017/contacts';
+if (process.env.NODE_ENV === 'test') {
+  devDbUrl = 'mongodb://localhost:27017/contacts-test';
+}
 const mongoDB = process.env.MONGODB_URI || devDbUrl;
 mongoose.connect(mongoDB, {
   useNewUrlParser: true,
@@ -15,6 +18,7 @@ mongoose.connect(mongoDB, {
   useFindAndModify: false,
 });
 mongoose.Promise = global.Promise;
+app.set('mongooseClient', mongoose);
 const db = mongoose.connection;
 const port = process.env.PORT || 3000;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));

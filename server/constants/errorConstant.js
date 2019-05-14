@@ -77,11 +77,11 @@ const ERRORS = {
   },
   GROUP_EXISTS: {
     message: 'Group with this name already exists',
-    status: 422,
+    status: 409,
   },
   INVALID_GROUP_ID: {
     message: 'Invalid Contact Group Id',
-    status: 422,
+    status: 404,
   },
   ID_MANDATORY: {
     message: 'Bad request input - _id is mandatory',
