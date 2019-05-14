@@ -3,6 +3,7 @@
 const AppError = require('../errors/appError');
 const errorConstant = require('../constants/errorConstant');
 const utils = require('../utils/appUtils');
+const appConstant = require('../constants/appConstant');
 
 /**
  * To validate the phone input list before creating and updating a contact
@@ -141,9 +142,37 @@ const validateUpdateInput = async (id, input) => {
   }
 };
 
+/**
+ * To get sortkey from the request query
+ */
+const getSortKey = async (input) => {
+  let sortKey = appConstant.SORT_KEYS.CREATEDAT;
+  if (input && input.sortKey) {
+    switch (input.sortKey) {
+      case appConstant.SORT_KEYS.NAME:
+        sortKey = appConstant.SORT_KEYS.NAME;
+        break;
+      case appConstant.SORT_KEYS.EMAIL:
+        sortKey = appConstant.SORT_KEYS.EMAILID;
+        break;
+      case appConstant.SORT_KEYS.PHONE:
+        sortKey = appConstant.SORT_KEYS.PHONENUMBER;
+        break;
+      case appConstant.SORT_KEYS.UPDATEDAT:
+        sortKey = appConstant.SORT_KEYS.UPDATEDAT;
+        break;
+      default:
+        sortKey = appConstant.SORT_KEYS.CREATEDAT;
+        break;
+    }
+  }
+  return sortKey;
+};
+
 module.exports = {
   validatePhoneInput,
   validateEmailInput,
   validateContactInput,
   validateUpdateInput,
+  getSortKey,
 };

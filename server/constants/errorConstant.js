@@ -115,6 +115,10 @@ const ERRORS = {
     message: 'Bad request input - Contact Id already exists in the group',
     status: 422,
   },
+  NO_SPACE_ALLOWED: {
+    message: 'Bad request input - No space allowed for search key',
+    status: 422,
+  },
 };
 
 module.exports = {

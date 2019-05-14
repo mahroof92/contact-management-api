@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-useless-escape */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const Contact = require('../models/contact');
@@ -6,7 +6,6 @@ const contactService = require('../services/contact');
 const errorConstant = require('../constants/errorConstant');
 const appConstant = require('../constants/appConstant');
 const AppError = require('../errors/appError');
-
 
 /**
  * Saving a new contact to the databse
@@ -45,11 +44,11 @@ const getById = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
     if (!contact) {
-      return res.status(404).send({ error: errorConstant.ERRORS.INVALID_ID });
+      throw new AppError(errorConstant.ERRORS.INVALID_ID);
     }
     return res.send(contact);
   } catch (error) {
-    console.log('Error while finding the contact with ID: ', req.params.id);
+    console.log(`Error while finding the contact with ID: ${req.params.id} - ${error}`);
     return res.status(error.status || 500).send(error);
   }
 };
@@ -126,50 +125,69 @@ const deleteContactById = async (req, res) => {
 };
 
 /**
- * To search for a contact using Name, Email or Phone
+ * To search for a contact using Name
  */
-const searchContact = async (req, res) => {
-  const searchKey = req.params.key.trim().split(' ').filter(e => e.length > 0);
-  let sortKey = appConstant.SORT_KEYS.CREATEDAT;
-  if (req.query && req.query.sortKey) {
-    switch (req.query.sortKey) {
-      case appConstant.SORT_KEYS.NAME:
-        sortKey = appConstant.SORT_KEYS.NAME;
-        break;
-      case appConstant.SORT_KEYS.EMAIL:
-        sortKey = appConstant.SORT_KEYS.EMAILID;
-        break;
-      case appConstant.SORT_KEYS.PHONE:
-        sortKey = appConstant.SORT_KEYS.PHONENUMBER;
-        break;
-      case appConstant.SORT_KEYS.UPDATEDAT:
-        sortKey = appConstant.SORT_KEYS.UPDATEDAT;
-        break;
-      default:
-        sortKey = appConstant.SORT_KEYS.CREATEDAT;
-        break;
-    }
-  }
-  const sortDirection = req.query && req.query.sortDirection
-    && req.query.sortDirection.toLowerCase() === appConstant.SORT_DIRECTION.ASC ? 1 : -1;
+const searchContactByName = async (req, res) => {
   try {
-    const searchByName = searchKey.map(key => ({ name: new RegExp(key, 'i') }));
-    const searchByEmail = searchKey.map(key => ({ 'email.id': new RegExp(key, 'i') }));
-    const searchByPhone = searchKey.map(key => ({ 'phone.number': new RegExp(key, 'i') }));
+    let searchKey = req.params.key.trim().split(' ').filter(e => e.length > 0);
+    searchKey = searchKey.map(key => key.replace(/([.*+?=^!:${}()|[\]\/\\])/g, '\\$1'));
+    const sortKey = await contactService.getSortKey(req.query);
+    const sortDirection = req.query && req.query.sortDirection
+      && req.query.sortDirection.toLowerCase() === appConstant.SORT_DIRECTION.ASC ? 1 : -1;
+    const searchByName = await searchKey.map(key => ({ name: new RegExp(key, 'i') }));
     const contacts = await Contact.find({
-      $or: [
-        { $and: searchByName },
-        { $and: searchByEmail },
-        { $and: searchByPhone },
-      ],
+      $and: searchByName,
     }).sort({ [sortKey]: sortDirection });
     return res.send(contacts);
   } catch (error) {
-    console.log('Error while searching the contact with key: ', searchKey);
-    if (error.message) {
-      return res.status(500).send({ error: error.message });
+    console.log(`Error while searching the contact by name: ${req.params.key} - ${error}`);
+    return res.status(error.status || 500).send(error);
+  }
+};
+
+/**
+ * To search for a contact using Email
+ */
+const searchContactByEmail = async (req, res) => {
+  try {
+    let searchKey = req.params.key.trim().split(' ').filter(e => e.length > 0);
+    if (searchKey.length > 1) {
+      throw new AppError(errorConstant.ERRORS.NO_SPACE_ALLOWED);
     }
-    return res.status(500).send(error);
+    searchKey = req.params.key.trim().replace(/([.*+?=^!:${}()|[\]\/\\])/g, '\\$1');
+    const sortKey = await contactService.getSortKey(req.query);
+    const sortDirection = req.query && req.query.sortDirection
+      && req.query.sortDirection.toLowerCase() === appConstant.SORT_DIRECTION.ASC ? 1 : -1;
+    const contacts = await Contact.find({
+      'email.id': new RegExp(searchKey, 'i'),
+    }).sort({ [sortKey]: sortDirection });
+    return res.send(contacts);
+  } catch (error) {
+    console.log(`Error while searching the contact by email: ${req.params.key} - ${error}`);
+    return res.status(error.status || 500).send(error);
+  }
+};
+
+/**
+ * To search for a contact using Phone
+ */
+const searchContactByPhone = async (req, res) => {
+  try {
+    let searchKey = req.params.key.trim().split(' ').filter(e => e.length > 0);
+    if (searchKey.length > 1) {
+      throw new AppError(errorConstant.ERRORS.NO_SPACE_ALLOWED);
+    }
+    searchKey = req.params.key.trim().replace(/([.*+?=^!:${}()|[\]\/\\])/g, '\\$1');
+    const sortKey = await contactService.getSortKey(req.query);
+    const sortDirection = req.query && req.query.sortDirection
+      && req.query.sortDirection.toLowerCase() === appConstant.SORT_DIRECTION.ASC ? 1 : -1;
+    const contacts = await Contact.find({
+      'phone.number': new RegExp(searchKey, 'i'),
+    }).sort({ [sortKey]: sortDirection });
+    return res.send(contacts);
+  } catch (error) {
+    console.log(`Error while searching the contact by phone: ${req.params.key} - ${error}`);
+    return res.status(error.status || 500).send(error);
   }
 };
 
@@ -191,6 +209,8 @@ module.exports = {
   getById,
   updateById,
   deleteContactById,
-  searchContact,
+  searchContactByName,
   getAllContacts,
+  searchContactByEmail,
+  searchContactByPhone,
 };

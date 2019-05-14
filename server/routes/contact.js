@@ -53,13 +53,33 @@ router.delete('/:id', async (req, res) => {
 });
 
 /**
- * To search for a contact using name, email or phone with sort
+ * To search for a contact using name with sort
  *
- * /search/test?sortKey=email&sortDirection=desc
+ * /search/test person?sortKey=name&sortDirection=desc
  *
  */
-router.get('/search/:key', async (req, res) => {
-  await contact.searchContact(req, res);
+router.get('/searchByName/:key', async (req, res) => {
+  await contact.searchContactByName(req, res);
+});
+
+/**
+ * To search for a contact using email id with sort
+ *
+ * /search/test@test.com?sortKey=email&sortDirection=desc
+ *
+ */
+router.get('/searchByEmail/:key', async (req, res) => {
+  await contact.searchContactByEmail(req, res);
+});
+
+/**
+ * To search for a contact using phone number with sort
+ *
+ * /search/9876543210?sortKey=phone&sortDirection=desc
+ *
+ */
+router.get('/searchByPhone/:key', async (req, res) => {
+  await contact.searchContactByPhone(req, res);
 });
 
 router.get('/', (req, res) => {
