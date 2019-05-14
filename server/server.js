@@ -12,6 +12,7 @@ const mongoDB = process.env.MONGODB_URI || devDbUrl;
 mongoose.connect(mongoDB, {
   useNewUrlParser: true,
   useCreateIndex: true,
+  useFindAndModify: false,
 });
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;

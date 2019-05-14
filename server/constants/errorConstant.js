@@ -1,33 +1,120 @@
 const ERRORS = {
-  PHONE_NUMBER_MANDATORY: 'Bad Input Request - One Phone number is mandatory to create a contact',
-  INVALID_ID_KEY_PHONE: 'Bad Input Request - Invalid key _id in phone list',
-  MISSING_PHONE_NUMBER: 'Bad Input Request - Phone number is missing in one or more phone list',
-  MISSING_PHONE_TAG: 'Bad Input Request - Phone number tag is missing in one or more phone list',
-  DUPLICATE_ENTRY_PHONE: 'Bad Input Request - Phone number and tag has duplicate entries',
-  INVALID_PHONE_NUMBER: 'Bad Input Request - One or more phone number is invalid',
-  INVALID_ID_KEY_EMAIL: 'Bad Input Request - Invalid key _id in email list',
-  MISSING_EMAIL_ID: 'Bad Input Request - Email Id is missing in one or more email list',
-  MISSING_EMAIL_TAG: 'Bad Input Request - Email Id tag is missing in one or more email list',
-  DUPLICATE_ENTRY_EMAIL: 'Bad Input Request - Email id and tag has duplicate entries',
-  INVALID_EMAIL_ID: 'Bad Input Request - One or more email id is invalid',
-  BAD_INPUT_REQUEST: 'Bad Input Request.',
-  INVALID_ID_KEY: 'Bad Input Request - Invalid key _id',
-  NAME_MANDATORY: 'Bad Input Request - Name is mandatory',
-  NAME_EXISTS: 'Bad Input Request - Name already exists',
-  INVALID_ID: 'Invalid Id',
-  MISSING_CONTACT_ID: 'Contact ID not found in request body',
-  REQUEST_ID_MISMATCH: 'Request Param ID did not match with the request body ID',
-  CANNOT_ADD_CONTACT: 'Bad Input Request - Contacts cannot be added while creating a group',
-  GROUP_EXISTS: 'Group with this name already exists',
-  INVALID_GROUP_ID: 'Invalid Contact Group Id',
-  ID_MANDATORY: 'Bad request input - _id is mandatory',
-  INVALID_KEY_CONTACTS: 'Bad request input - Invalid key contacts',
-  CONTACT_LIST_MANDATORY: 'Bad request input - Contacts list is mandatory',
-  DUPLICATE_CONTACT_LIST: 'Bad request input - Contacts list has duplicate elements',
-  MAX_CONTACT_EXCEEDS: 'Bad request input - Contacts list length exceeds 100',
-  INVALID_CONTACT_IDS: 'Bad request input - One or more contact id(s) invalid',
-  INVALID_VALUE_NAME: 'Bad request input - Invalid value for name',
-  CONTACT_ID_EXISTS: 'Bad request input - Contact Id already exists in the group',
+  PHONE_NUMBER_MANDATORY: {
+    message: 'Bad Input Request - One Phone number is mandatory for a contact',
+    status: 422,
+  },
+  INVALID_ID_KEY_PHONE: {
+    message: 'Bad Input Request - Invalid key _id in phone list',
+    status: 422,
+  },
+  MISSING_PHONE_NUMBER: {
+    message: 'Bad Input Request - Phone number is missing in one or more phone list',
+    status: 422,
+  },
+  MISSING_PHONE_TAG: {
+    message: 'Bad Input Request - Phone number tag is missing in one or more phone list',
+    status: 422,
+  },
+  DUPLICATE_ENTRY_PHONE: {
+    message: 'Bad Input Request - Phone number and tag has duplicate entries',
+    status: 422,
+  },
+  INVALID_PHONE_NUMBER: {
+    message: 'Bad Input Request - One or more phone number is invalid',
+    status: 422,
+  },
+  INVALID_ID_KEY_EMAIL: {
+    message: 'Bad Input Request - Invalid key _id in email list',
+    status: 422,
+  },
+  MISSING_EMAIL_ID: {
+    message: 'Bad Input Request - Email Id is missing in one or more email list',
+    status: 422,
+  },
+  MISSING_EMAIL_TAG: {
+    message: 'Bad Input Request - Email Id tag is missing in one or more email list',
+    status: 422,
+  },
+  DUPLICATE_ENTRY_EMAIL: {
+    message: 'Bad Input Request - Email id and tag has duplicate entries',
+    status: 422,
+  },
+  INVALID_EMAIL_ID: {
+    message: 'Bad Input Request - One or more email id is invalid',
+    status: 422,
+  },
+  BAD_INPUT_REQUEST: {
+    message: 'Bad Input Request.',
+    status: 422,
+  },
+  INVALID_ID_KEY: {
+    message: 'Bad Input Request - Invalid key _id',
+    status: 422,
+  },
+  NAME_MANDATORY: {
+    message: 'Bad Input Request - Name is mandatory',
+    status: 422,
+  },
+  NAME_EXISTS: {
+    message: 'Bad Input Request - Name already exists',
+    status: 409,
+  },
+  INVALID_ID: {
+    message: 'Invalid Id',
+    status: 404,
+  },
+  MISSING_CONTACT_ID: {
+    message: 'Contact ID not found in request body',
+    status: 400,
+  },
+  REQUEST_ID_MISMATCH: {
+    message: 'Request Param ID did not match with the request body ID',
+    status: 400,
+  },
+  CANNOT_ADD_CONTACT: {
+    message: 'Bad Input Request - Contacts cannot be added while creating a group',
+    status: 422,
+  },
+  GROUP_EXISTS: {
+    message: 'Group with this name already exists',
+    status: 422,
+  },
+  INVALID_GROUP_ID: {
+    message: 'Invalid Contact Group Id',
+    status: 422,
+  },
+  ID_MANDATORY: {
+    message: 'Bad request input - _id is mandatory',
+    status: 422,
+  },
+  INVALID_KEY_CONTACTS: {
+    message: 'Bad request input - Invalid key contacts',
+    status: 422,
+  },
+  CONTACT_LIST_MANDATORY: {
+    message: 'Bad request input - Contacts list is mandatory',
+    status: 422,
+  },
+  DUPLICATE_CONTACT_LIST: {
+    message: 'Bad request input - Contacts list has duplicate elements',
+    status: 422,
+  },
+  MAX_CONTACT_EXCEEDS: {
+    message: 'Bad request input - Contacts list length exceeds 100',
+    status: 422,
+  },
+  INVALID_CONTACT_IDS: {
+    message: 'Bad request input - One or more contact id(s) invalid',
+    status: 422,
+  },
+  INVALID_VALUE_NAME: {
+    message: 'Bad request input - Invalid value for name',
+    status: 422,
+  },
+  CONTACT_ID_EXISTS: {
+    message: 'Bad request input - Contact Id already exists in the group',
+    status: 422,
+  },
 };
 
 module.exports = {

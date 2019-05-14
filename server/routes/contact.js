@@ -19,9 +19,7 @@ const router = express.Router();
  *    }]
  * }
  */
-router.post('/', async (req, res, next) => {
-  await contact.validateInput(req, res, next);
-}, async (req, res) => {
+router.post('/', async (req, res) => {
   await contact.create(req, res);
 });
 
