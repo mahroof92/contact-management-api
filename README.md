@@ -45,4 +45,12 @@ Run the server using the command
 npm run start
 ```
 
-The server will run in the port **3000**
+The server will run in the default port **3000**
+
+### Test
+
+To run the test case for all API
+
+```
+npm run test
+```
